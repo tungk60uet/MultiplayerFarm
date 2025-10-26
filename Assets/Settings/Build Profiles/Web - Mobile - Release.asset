@@ -868,7 +868,7 @@ MonoBehaviour:
     - line: '|   webEnableSubmoduleStrippingCompatibility: 0'
     - line: '|   scriptingDefineSymbols:'
     - line: '|     Standalone: '
-    - line: '|     WebGL: WEBTOOLS_LOG_CALLS'
+    - line: '|     WebGL: WEBTOOLS_LOG_CALLS;FISHNET;FISHNET_V4'
     - line: '|   additionalCompilerArguments: {}'
     - line: '|   platformArchitecture: {}'
     - line: '|   scriptingBackend: {}'
