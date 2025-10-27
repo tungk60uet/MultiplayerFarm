@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::_Project.Scripts.Config
   crops:
   - cropName: Broccoli
-    growthTime: 5
+    growthTime: 10
   - cropName: Carrot
-    growthTime: 8
+    growthTime: 15
   - cropName: Cauliflower
-    growthTime: 13
+    growthTime: 20
   - cropName: Corn
-    growthTime: 21
-  - cropName: Mashroom
     growthTime: 25
-  - cropName: Sunflower
+  - cropName: Mashroom
     growthTime: 30
+  - cropName: Sunflower
+    growthTime: 35
