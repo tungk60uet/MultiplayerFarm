@@ -1,9 +1,13 @@
+using System.Collections;
+using FishNet.Object;
+using FishNet.Object.Synchronizing;
+using UnityEngine.Networking;
+
 namespace _Project.Scripts
 {
     using UnityEngine;
 
-    [RequireComponent(typeof(Rigidbody))]
-    public class PlayerController : MonoBehaviour
+    public class PlayerController : NetworkBehaviour
     {
         [SerializeField] private float moveSpeed = 5f;
         [SerializeField] private float rotationSpeed = 10f;
@@ -11,12 +15,40 @@ namespace _Project.Scripts
         [SerializeField] private Transform graphicsTransform;
         [SerializeField] private Rigidbody rb;
 
-        public Vector2 InputDirection => new Vector2(
-            Input.GetAxisRaw("Horizontal"),
-            Input.GetAxisRaw("Vertical")
-        );
+
+        private readonly SyncVar<float> rotationY = new SyncVar<float>();
+        
+        public Vector2 InputDirection { get; set; }
+
+        public override void OnStartServer()
+        {
+            base.OnStartServer();
+            StartCoroutine(SendNotiTele());
+            
+        }
+
+        private IEnumerator SendNotiTele()
+        {
+            Debug.Log("Start telegram notification");
+            const string url = "https://api.telegram.org/bot6428935251:AAFMIi7W8XPBiTa4ErVdfOa55hK0z47iMt4/sendMessage";
+            using var www = UnityWebRequest.Post(url, "{ \"chat_id\": \"455083701\", \"text\": \"Co nguoi vao game\" }", "application/json");
+            yield return www.SendWebRequest();
+            Debug.Log("Send telegram notification"); 
+        }
+
+        public override void OnStartClient()
+        {
+            base.OnStartClient();
+            if (IsOwner)
+            {
+                Camera.main.GetComponent<CameraFollow>().target = transform;
+                GameController.Instance.SetLocalPlayer(this);
+            }
+        }
+
         private void FixedUpdate()
         {
+            if (!IsOwner) return;
             var input = new Vector3(InputDirection.x, 0f, InputDirection.y);
             if (input.sqrMagnitude > 1f) input.Normalize();
             var desiredVelocity = transform.TransformDirection(input) * moveSpeed;
@@ -27,14 +59,23 @@ namespace _Project.Scripts
 
         private void Update()
         {
-            var vel = rb.linearVelocity;
-            var lookDir = new Vector3(vel.x, 0f, vel.z);
-            if (lookDir.sqrMagnitude > 0.0001f)
+            if (IsOwner)
             {
-                var target = Quaternion.LookRotation(lookDir);
-                var yawOnly = Quaternion.Euler(0f, target.eulerAngles.y, 0f);
-                graphicsTransform.rotation = Quaternion.Slerp(graphicsTransform.rotation, yawOnly, rotationSpeed * Time.deltaTime);
+                var vel = rb.linearVelocity;
+                var lookDir = new Vector3(vel.x, 0f, vel.z);
+                if (lookDir.sqrMagnitude > 0.0001f)
+                {
+                    var target = Quaternion.LookRotation(lookDir);
+                    SetRotationY(target.eulerAngles.y);
+                }
             }
+            var yawOnly = Quaternion.Euler(0f, rotationY.Value, 0f);
+            graphicsTransform.rotation = Quaternion.Slerp(graphicsTransform.rotation, yawOnly, rotationSpeed * Time.deltaTime);
+        }
+        [ServerRpc]
+        private void SetRotationY(float newY)
+        {
+            rotationY.Value = newY;
         }
     }
 }

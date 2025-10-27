@@ -15,8 +15,8 @@ namespace _Project.Scripts
     public class Config : ScriptableObject
     {
         public List<CropConfig> crops;
+        public List<GameObject> graphicFarmers;
         private static Config _instance;
-
         public static Config Instance
         {
             get
