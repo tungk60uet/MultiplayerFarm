@@ -1,5 +1,7 @@
 using FishNet.Managing;
+#if UNITY_EDITOR
 using ParrelSync;
+#endif
 using UnityEngine;
 
 public class AutoStartNetwork : MonoBehaviour

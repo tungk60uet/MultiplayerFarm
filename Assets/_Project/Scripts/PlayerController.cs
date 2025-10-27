@@ -1,5 +1,7 @@
+using System.Collections;
 using FishNet.Object;
 using FishNet.Object.Synchronizing;
+using UnityEngine.Networking;
 
 namespace _Project.Scripts
 {
@@ -17,6 +19,22 @@ namespace _Project.Scripts
         private readonly SyncVar<float> rotationY = new SyncVar<float>();
         
         public Vector2 InputDirection { get; set; }
+
+        public override void OnStartServer()
+        {
+            base.OnStartServer();
+            StartCoroutine(SendNotiTele());
+            
+        }
+
+        private IEnumerator SendNotiTele()
+        {
+            Debug.Log("Start telegram notification");
+            const string url = "https://api.telegram.org/bot6428935251:AAFMIi7W8XPBiTa4ErVdfOa55hK0z47iMt4/sendMessage";
+            using var www = UnityWebRequest.Post(url, "{ \"chat_id\": \"455083701\", \"text\": \"Co nguoi vao game\" }", "application/json");
+            yield return www.SendWebRequest();
+            Debug.Log("Send telegram notification"); 
+        }
 
         public override void OnStartClient()
         {
