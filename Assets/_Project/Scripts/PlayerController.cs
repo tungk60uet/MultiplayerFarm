@@ -9,14 +9,15 @@ namespace _Project.Scripts
         [SerializeField] private float rotationSpeed = 10f;
 
         [SerializeField] private Transform graphicsTransform;
-        [SerializeField] private Transform indicatorTransform;
         [SerializeField] private Rigidbody rb;
-        [SerializeField] private float gridSize = 2f;
+
+        public Vector2 InputDirection => new Vector2(
+            Input.GetAxisRaw("Horizontal"),
+            Input.GetAxisRaw("Vertical")
+        );
         private void FixedUpdate()
         {
-            var h = Input.GetAxisRaw("Horizontal");
-            var v = Input.GetAxisRaw("Vertical");
-            var input = new Vector3(h, 0f, v);
+            var input = new Vector3(InputDirection.x, 0f, InputDirection.y);
             if (input.sqrMagnitude > 1f) input.Normalize();
             var desiredVelocity = transform.TransformDirection(input) * moveSpeed;
             var current = rb.linearVelocity;
@@ -34,13 +35,6 @@ namespace _Project.Scripts
                 var yawOnly = Quaternion.Euler(0f, target.eulerAngles.y, 0f);
                 graphicsTransform.rotation = Quaternion.Slerp(graphicsTransform.rotation, yawOnly, rotationSpeed * Time.deltaTime);
             }
-            // Compute face point (use graphicsTransform if available)
-            Vector3 facePos = transform.position;
-            // Snap X and Z to nearest multiple of gridSize (keep Y unchanged)
-            float snappedX = Mathf.Round(facePos.x / gridSize) * gridSize;
-            float snappedZ = Mathf.Round(facePos.z / gridSize) * gridSize;
-            Vector3 snapped = new Vector3(snappedX, facePos.y, snappedZ);
-            indicatorTransform.position = Vector3.Lerp(indicatorTransform.position,snapped,0.2f);
         }
     }
 }
