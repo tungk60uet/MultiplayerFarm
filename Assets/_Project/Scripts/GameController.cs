@@ -1,17 +1,24 @@
 using System.Collections.Generic;
+using FishNet.Object;
+using Lean.Gui;
 using UnityEngine;
 
 namespace _Project.Scripts
 {
-    public class GameController : MonoBehaviour
+    public class GameController : NetworkBehaviour
     {
         public static GameController Instance { get; private set; }
         [SerializeField] private FarmField[] farmField;
         [SerializeField] private PlayerController localPlayer;
         [SerializeField] private Transform indicatorTransform;
+        
+        [SerializeField] private LeanToggle seedToggle;
+        [SerializeField] private LeanToggle harvestToggle;
+
         [SerializeField] private float gridSize = 2f;
         private readonly Dictionary<Vector2, FarmField> farmFieldDict = new();
         private Vector2 lastIndicatorGridPosition;
+
         private void Awake()
         {
             Instance = this;
@@ -23,6 +30,18 @@ namespace _Project.Scripts
                 );
                 farmFieldDict[gridPos] = field;
             }
+        }
+
+        public void SetInput(Vector2 input)
+        {
+            if (localPlayer != null && localPlayer.IsOwner)
+                localPlayer.InputDirection = input;
+        }
+      
+
+        public void SetLocalPlayer(PlayerController player)
+        {
+            localPlayer = player;
         }
 
         private void Update()
@@ -38,36 +57,41 @@ namespace _Project.Scripts
             if (newGridPos != lastIndicatorGridPosition)
             {
                 lastIndicatorGridPosition = newGridPos;
-                // Additional logic on grid change could go here
+                if (farmFieldDict.TryGetValue(lastIndicatorGridPosition, out var currentField))
+                {
+                    seedToggle.On = currentField.SeedAble;
+                    harvestToggle.On = currentField.HarvestAble;
+                }
+                else
+                {
+                    seedToggle.On = false;
+                    harvestToggle.On = false;
+                }
             }
-
             // Smoothly move indicator to the computed grid position (preserve y)
             var targetPos = new Vector3(newGridPos.x, indicatorTransform.position.y, newGridPos.y);
             indicatorTransform.position = Vector3.Lerp(indicatorTransform.position, targetPos, 0.2f);
-
-            // Handle seeding and harvesting inputs
+        }
+        
+        public void OnClickSeed(int idxCrop)
+        {
+            var cropName = Config.Instance.crops[idxCrop - 1].cropName;
             if (farmFieldDict.TryGetValue(lastIndicatorGridPosition, out var currentField))
             {
-                // Seeding logic (keys 1-6)
-                for (int i = 1; i <= 6; i++)
+                if (currentField.SeedAble)
                 {
-                    if (Input.GetKeyDown(i.ToString()))
-                    {
-                        if (currentField.SeedAble && i - 1 < Config.Instance.crops.Count)
-                        {
-                            var cropName = Config.Instance.crops[i - 1].cropName;
-                            currentField.Seed(cropName);
-                        }
-                    }
+                    currentField.Seed(cropName);
                 }
+            }
+        }
 
-                // Harvesting logic (key E)
-                if (Input.GetKeyDown(KeyCode.E))
+        public void OnClickHarvest()
+        {
+            if (farmFieldDict.TryGetValue(lastIndicatorGridPosition, out var currentField))
+            {
+                if (currentField.HarvestAble)
                 {
-                    if (currentField.HarvestAble)
-                    {
-                        currentField.Harvest();
-                    }
+                    currentField.Harvest();
                 }
             }
         }
