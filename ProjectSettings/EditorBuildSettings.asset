@@ -5,12 +5,8 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
-    path: Assets/Scenes/Main.unity
-    guid: 99c9720ab356a0642a771bea13969a05
   - enabled: 1
-    path: Assets/AssetHunts!/GameDev Starter Kit - Farming/Demo Scene/Level Design
-      Demo 01.unity
-    guid: ed8daf6e37dc44642be598c4f9d41dcd
+    path: Assets/_Project/Scenes/MainGame.unity
+    guid: fdf6fa9e3f3254390ba3b82814bebc04
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0
