@@ -15,9 +15,9 @@ public class AutoStartNetwork : MonoBehaviour
             networkManager.ServerManager.StartConnection();
         networkManager.ClientManager.StartConnection();
 #elif !UNITY_EDITOR && UNITY_SERVER
-            _networkManager.ServerManager.StartConnection();
+            networkManager.ServerManager.StartConnection();
 #else
-            _networkManager.ClientManager.StartConnection();
+            networkManager.ClientManager.StartConnection();
 #endif
     }
 }
